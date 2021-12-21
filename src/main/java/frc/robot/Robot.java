@@ -8,6 +8,14 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.TimedRobot;
+
+
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -19,6 +27,13 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private TalonSRX FL = new TalonSRX(1);
+  private TalonSRX BL = new TalonSRX(3);
+  private TalonSRX FR = new TalonSRX(0);
+  private TalonSRX BR = new TalonSRX(2);
+  private Joystick joystick1 = new Joystick(0);
+  private Joystick joystick2 = new Joystick(1);
+
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -29,6 +44,12 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    // Motors
+    FL.set(ControlMode.PercentOutput, 0);
+    BL.set(ControlMode.PercentOutput, 0);
+    FR.set(ControlMode.PercentOutput, 0);
+    BR.set(ControlMode.PercentOutput, 0);
   }
 
   /**
@@ -78,7 +99,14 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    double stick1 = joystick1.getRawAxis(1);
+    double stick2 = joystick2.getRawAxis(1);
+    FL.set(ControlMode.PercentOutput, stick1);
+    BL.set(ControlMode.PercentOutput, stick1);
+    FR.set(ControlMode.PercentOutput, -stick2);
+    BR.set(ControlMode.PercentOutput, -stick2);
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
