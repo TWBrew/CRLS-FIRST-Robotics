@@ -5,6 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.command.InstantCommand;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -33,6 +35,9 @@ public class Robot extends TimedRobot {
   private TalonSRX BR = new TalonSRX(2);
   private Joystick joystick1 = new Joystick(0);
   private Joystick joystick2 = new Joystick(1);
+  private JoystickButton steerSwitch = new JoystickButton(joystick1, 2);
+  private Boolean arcade = true;
+  private Boolean sSPressed = false;
 
 
   /**
@@ -102,10 +107,44 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     double stick1 = joystick1.getRawAxis(1);
     double stick2 = joystick2.getRawAxis(1);
+    double speed = Math.max(0, 1 - joystick1.getRawAxis(3));
+    double twistDegrees = joystick1.getTwist();
+
+    if (steerSwitch.get()) {
+      if (!sSPressed) {
+        switchSteer();
+        sSPressed = true;
+      }
+    } else {
+      sSPressed = false;
+    }
+
+    if (arcade)
+    {
+      double[] converted = arcadeConversion(stick1, twistDegrees);
+      stick1 = converted[0] * -1;
+      stick2 = converted[1] * -1;
+    }
+
+    stick1 *= speed;
+    stick2 *= speed;
+
     FL.set(ControlMode.PercentOutput, stick1);
     BL.set(ControlMode.PercentOutput, stick1);
     FR.set(ControlMode.PercentOutput, -stick2);
     BR.set(ControlMode.PercentOutput, -stick2);
+  }
+
+  public double[] arcadeConversion(double throttleValue, double turnValue) {
+    double leftMtr;
+    double rightMtr;
+    leftMtr = throttleValue + turnValue;
+    rightMtr = throttleValue - turnValue;
+    return new double[] {leftMtr, rightMtr};
+  }
+
+  public void switchSteer() {
+    arcade = !arcade;
   }
 
   /** This function is called once when the robot is disabled. */
